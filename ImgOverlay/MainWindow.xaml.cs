@@ -11,9 +11,11 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfAnimatedGif;
 
 namespace ImgOverlay
 {
@@ -29,11 +31,18 @@ namespace ImgOverlay
         public double? ImageSourceHeight { get; set; } = null;
         public double? ImageSourceWidth { get; set; } = null;
 
+        public int globalScaleX = 1;
+
         public MainWindow()
         {
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             InitializeComponent();
+        }
+
+        public void ChangeResizeMode(ResizeMode newResizeMode)
+        {
+            ResizeMode = newResizeMode;
         }
 
         public void NudgeY(int pixels)
@@ -44,7 +53,6 @@ namespace ImgOverlay
         public void NudgeX(int pixels)
         {
             this.Left += pixels;
-
         }
 
         public void LoadImage(string path)
@@ -67,6 +75,15 @@ namespace ImgOverlay
                 img.BeginInit();
                 img.UriSource = new Uri(path);
                 img.EndInit();
+                if (path.EndsWith(".gif"))
+                {
+                    ImageBehavior.SetAnimatedSource(DisplayImage, img);
+                    ImageBehavior.SetRepeatBehavior(DisplayImage, RepeatBehavior.Forever);
+                }
+                else
+                {
+                    ImageBehavior.SetAnimatedSource(DisplayImage, null);
+                }
             }
             catch (Exception)
             {
@@ -167,6 +184,15 @@ namespace ImgOverlay
                 this.Height = ImageSourceHeight.Value;
 
             }
+        }
+
+        public void HorizontalFlip()
+        {
+            DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);
+            ScaleTransform flipTrans = new ScaleTransform();
+            flipTrans.ScaleX = -globalScaleX;
+            globalScaleX = -globalScaleX;
+            DisplayImage.RenderTransform = flipTrans;
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)

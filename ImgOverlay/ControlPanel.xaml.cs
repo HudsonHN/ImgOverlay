@@ -3,6 +3,10 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 using System.Windows.Controls;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System;
+using System.Diagnostics;
 
 namespace ImgOverlay
 {
@@ -11,6 +15,7 @@ namespace ImgOverlay
     /// </summary>
     public partial class ControlPanel : Window
     {
+        bool isOpaque;
         public ControlPanel()
         {
             InitializeComponent();
@@ -24,14 +29,17 @@ namespace ImgOverlay
 
             var opaque = (sender as ToggleButton).IsChecked.Value;
             Owner.IsHitTestVisible = opaque;
+            isOpaque = opaque;
 
             var hwnd = new WindowInteropHelper(Owner).Handle;
             if (opaque)
             {
+                (Owner as MainWindow)?.ChangeResizeMode(ResizeMode.CanResizeWithGrip);
                 WindowsServices.SetWindowExOpaque(hwnd);
             }
             else
             {
+                (Owner as MainWindow)?.ChangeResizeMode(ResizeMode.CanResize);
                 WindowsServices.SetWindowExTransparent(hwnd);
             }
 
@@ -43,6 +51,7 @@ namespace ImgOverlay
             var openDialog = new OpenFileDialog();
             if (openDialog.ShowDialog() == true)
             {
+                (Owner as MainWindow)?.ChangeResizeMode(isOpaque ? ResizeMode.CanResizeWithGrip : ResizeMode.CanResize);
                 (Owner as MainWindow)?.LoadImage(openDialog.FileName);
                 EnableImageControls();
             }
@@ -50,7 +59,7 @@ namespace ImgOverlay
 
         private void EnableImageControls()
         {
-            Control[] controls = { DragButton, SizeButton, OpacitySlider, RotateSlider, HideButton };
+            Control[] controls = { DragButton, SizeButton, OpacitySlider, RotateSlider, HideButton, FlipButton };
             bool enable = false;
             if(((Owner as MainWindow)?.ImageIsLoaded).HasValue)
             {
@@ -64,11 +73,13 @@ namespace ImgOverlay
 
         private void OpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            OpacityText.Text = Math.Floor(e.NewValue * 100).ToString();
             (Owner as MainWindow)?.ChangeOpacity((float)e.NewValue);
         }
 
         private void RotateSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            RotateText.Text = e.NewValue.ToString();
             (Owner as MainWindow)?.ChangeRotation((float)e.NewValue);
         }
 
@@ -107,6 +118,10 @@ namespace ImgOverlay
             (Owner as MainWindow)?.ActualSize();
         }
 
+        private void FlipButton_Click(object sender, RoutedEventArgs e)
+        {
+            (Owner as MainWindow)?.HorizontalFlip();
+        }
 
         private void HideButton_Click(object sender, RoutedEventArgs e)
         {
@@ -114,9 +129,6 @@ namespace ImgOverlay
             {
                 (Owner as MainWindow).Show(!HideButton.IsChecked.Value);
             }
-
-            
-
         }
 
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -149,6 +161,29 @@ namespace ImgOverlay
             //}
 
 
+        }
+
+        private void OpacityText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            float newValue;
+            bool isNumber = float.TryParse(OpacityText.Text, out newValue);
+            if (isNumber)
+            {
+                newValue /= 100.0f;
+                //OpacitySlider.Value = newValue;
+                (Owner as MainWindow)?.ChangeOpacity(newValue);
+            }
+        }
+
+        private void RotateText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            float newValue;
+            bool isNumber = float.TryParse(RotateText.Text, out newValue);
+            if (isNumber)
+            {
+                newValue = Math.Min(Math.Max(newValue, -180), 180);
+                (Owner as MainWindow)?.ChangeRotation(newValue);
+            }
         }
     }
 }

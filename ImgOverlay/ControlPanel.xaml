@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImgOverlay"
         mc:Ignorable="d"
-        Title="Image Overlay" Height="122.925" Width="300"
+        Title="Image Overlay" Height="122.925" Width="450"
         ResizeMode="CanMinimize" 
         DragOver="ControlPanel_DragOver" 
         AllowDrop="True" 
@@ -19,6 +19,7 @@
 
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition />
                 <ColumnDefinition />
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -37,13 +38,18 @@
             <ToggleButton x:Name="HideButton" Grid.Column="3" Click="HideButton_Click">
                 <TextBlock Text="Hide" />
             </ToggleButton>
+            <Button x:Name="FlipButton" Grid.Column="4" Click="FlipButton_Click">
+                <TextBlock Text="Horizontal Flip" />
+            </Button>
         </Grid>
 
         <Grid Grid.Row="1" >
-            <Slider x:Name="OpacitySlider" Minimum="0" Maximum="1" Value="1" ValueChanged="OpacitySlider_ValueChanged" Margin="0,6,0,0" />
+            <TextBox x:Name="OpacityText" Margin="5,6,332,6" TextChanged="OpacityText_TextChanged" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Slider x:Name="OpacitySlider" Minimum="0" Maximum="1" Value="1" ValueChanged="OpacitySlider_ValueChanged" Margin="67,6,0,0" />
         </Grid>
         <Grid  Grid.Row="2">
-            <Slider x:Name="RotateSlider" Minimum="-180" Maximum="180" Value="0" ValueChanged="RotateSlider_ValueChanged" Margin="0,6,0,0" />
+            <TextBox x:Name="RotateText" Margin="5,6,332,6" TextChanged="RotateText_TextChanged" Text="0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Slider x:Name="RotateSlider" Minimum="-180" Maximum="180" Value="0" ValueChanged="RotateSlider_ValueChanged" Margin="67,6,0,0" />
         </Grid>
     </Grid>
 </Window>
