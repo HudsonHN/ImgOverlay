@@ -80,6 +80,11 @@ namespace ImgOverlay
         private void RotateSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             RotateText.Text = e.NewValue.ToString();
+            int decimalIndex = RotateText.Text.IndexOf('.');
+            if(decimalIndex != -1)
+            {
+                RotateText.Text = RotateText.Text.Substring(0, decimalIndex + 3);
+            }
             (Owner as MainWindow)?.ChangeRotation((float)e.NewValue);
         }
 
@@ -181,7 +186,7 @@ namespace ImgOverlay
             bool isNumber = float.TryParse(RotateText.Text, out newValue);
             if (isNumber)
             {
-                newValue = Math.Min(Math.Max(newValue, -180), 180);
+                newValue = Math.Min(Math.Max(newValue, -180.0f), 180.0f);
                 (Owner as MainWindow)?.ChangeRotation(newValue);
             }
         }

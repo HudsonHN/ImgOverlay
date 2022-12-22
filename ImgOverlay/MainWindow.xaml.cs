@@ -32,6 +32,7 @@ namespace ImgOverlay
         public double? ImageSourceWidth { get; set; } = null;
 
         public int globalScaleX = 1;
+        public float globalRotation = 0.0f;
 
         public MainWindow()
         {
@@ -165,10 +166,15 @@ namespace ImgOverlay
 
             // Set the rotation of the transform.
             myRotateTransform.Angle = angle;
+            globalRotation = angle;
 
+            ScaleTransform myScaleTransform = new ScaleTransform();
+            myScaleTransform.ScaleX = globalScaleX; 
+            
             // Create a TransformGroup to contain the transforms
             // and add the transforms to it.
             TransformGroup myTransformGroup = new TransformGroup();
+            myTransformGroup.Children.Add(myScaleTransform);
             myTransformGroup.Children.Add(myRotateTransform);
 
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);
@@ -189,10 +195,19 @@ namespace ImgOverlay
         public void HorizontalFlip()
         {
             DisplayImage.RenderTransformOrigin = new Point(0.5, 0.5);
-            ScaleTransform flipTrans = new ScaleTransform();
-            flipTrans.ScaleX = -globalScaleX;
+            
+            ScaleTransform myScaleTransform = new ScaleTransform();
+            myScaleTransform.ScaleX = -globalScaleX;
             globalScaleX = -globalScaleX;
-            DisplayImage.RenderTransform = flipTrans;
+
+            RotateTransform myRotateTransform = new RotateTransform();
+            myRotateTransform.Angle = globalRotation;
+
+            TransformGroup myTransformGroup = new TransformGroup();
+            myTransformGroup.Children.Add(myScaleTransform);
+            myTransformGroup.Children.Add(myRotateTransform);
+
+            DisplayImage.RenderTransform = myTransformGroup;
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
